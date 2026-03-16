@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Interactive Course Syllabus</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+
+body{
+font-family: Arial, Helvetica, sans-serif;
+background:#ffffff;
+color:#000;
+margin:0;
+padding:0;
+line-height:1.6;
+}
+
+.container{
+max-width:900px;
+margin:auto;
+padding:40px;
+}
+
+header{
+text-align:center;
+border-bottom:3px solid #2e7d32;
+padding-bottom:20px;
+margin-bottom:30px;
+}
+
+h1{
+color:#2e7d32;
+margin-bottom:5px;
+}
+
+h2{
+color:#2e7d32;
+border-bottom:2px solid #e8f5e8;
+padding-bottom:5px;
+margin-top:40px;
+}
+
+.editable{
+padding:3px;
+border-radius:4px;
+}
+
+.edit-mode .editable{
+background:#e8f5e8;
+border:1px dashed #2e7d32;
+}
+
+.toolbar{
+position:sticky;
+top:0;
+background:white;
+padding:10px;
+border-bottom:1px solid #e8f5e8;
+display:flex;
+gap:10px;
+z-index:10;
+}
+
+button{
+background:#2e7d32;
+border:none;
+color:white;
+padding:10px 18px;
+border-radius:6px;
+cursor:pointer;
+font-weight:bold;
+}
+
+button.secondary{
+background:#388e3c;
+}
+
+button:hover{
+opacity:.9;
+}
+
+section{
+margin-bottom:25px;
+}
+
+footer{
+margin-top:40px;
+padding-top:20px;
+border-top:2px solid #e8f5e8;
+font-size:.9em;
+text-align:center;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="toolbar">
+
+<button id="toggleEdit">Enable Edit Mode</button>
+<button class="secondary" onclick="downloadPDF()">Download PDF</button>
+<button class="secondary" onclick="clearStorage()">Reset</button>
+
+</div>
+
+<div class="container" id="syllabusContent">
+
+<header>
+
+<h1 contenteditable="true" class="editable" data-field="courseTitle">
+Course Title
+</h1>
+
+<div contenteditable="true" class="editable" data-field="institution">
+Institution Name
+</div>
+
+<div contenteditable="true" class="editable" data-field="semester">
+Semester / Year
+</div>
+
+</header>
+
+<section>
+
+<h2>Instructor Information</h2>
+
+<p contenteditable="true" class="editable" data-field="instructorName">
+Instructor Name
+</p>
+
+<p contenteditable="true" class="editable" data-field="email">
+Email Address
+</p>
+
+<p contenteditable="true" class="editable" data-field="officeHours">
+Office Hours
+</p>
+
+</section>
+
+
+<section>
+
+<h2>Course Description</h2>
+
+<p contenteditable="true" class="editable" data-field="description">
+Provide a description of the course here.
+</p>
+
+</section>
+
+
+<section>
+
+<h2>Learning Outcomes</h2>
+
+<ul>
+<li contenteditable="true" class="editable" data-field="outcome1">Outcome 1</li>
+<li contenteditable="true" class="editable" data-field="outcome2">Outcome 2</li>
+<li contenteditable="true" class="editable" data-field="outcome3">Outcome 3</li>
+<li contenteditable="true" class="editable" data-field="outcome4">Outcome 4</li>
+</ul>
+
+</section>
+
+
+<section>
+
+<h2>Assignments</h2>
+
+<p contenteditable="true" class="editable" data-field="assignments">
+Describe assignments and grading breakdown.
+</p>
+
+</section>
+
+
+<section>
+
+<h2>Course Policies</h2>
+
+<p contenteditable="true" class="editable" data-field="policies">
+Attendance, participation, and other policies.
+</p>
+
+</section>
+
+
+<section>
+
+<h2>Schedule</h2>
+
+<p contenteditable="true" class="editable" data-field="schedule">
+Week-by-week schedule.
+</p>
+
+</section>
+
+<footer>
+
+<div contenteditable="true" class="editable" data-field="footerNote">
+Syllabus subject to change.
+</div>
+
+</footer>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<script>
+
+let editMode=false
+
+const fields=document.querySelectorAll("[data-field]")
+
+function loadData(){
+
+fields.forEach(field=>{
+
+let key=field.dataset.field
+let saved=localStorage.getItem(key)
+
+if(saved){
+field.innerHTML=saved
+}
+
+})
+
+}
+
+function saveData(){
+
+fields.forEach(field=>{
+
+let key=field.dataset.field
+localStorage.setItem(key,field.innerHTML)
+
+})
+
+}
+
+fields.forEach(field=>{
+field.addEventListener("input",saveData)
+})
+
+document.getElementById("toggleEdit").onclick=function(){
+
+editMode=!editMode
+
+if(editMode){
+document.body.classList.add("edit-mode")
+this.textContent="Disable Edit Mode"
+}else{
+document.body.classList.remove("edit-mode")
+this.textContent="Enable Edit Mode"
+}
+
+}
+
+function clearStorage(){
+
+if(confirm("Reset syllabus content?")){
+localStorage.clear()
+location.reload()
+}
+
+}
+
+function downloadPDF(){
+
+const { jsPDF } = window.jspdf
+
+const doc=new jsPDF()
+
+const content=document.getElementById("syllabusContent")
+
+doc.html(content,{
+
+callback:function(doc){
+doc.save("syllabus.pdf")
+},
+
+x:15,
+y:15,
+width:180,
+windowWidth:900
+
+})
+
+}
+
+loadData()
+
+</script>
+
+</body>
+</html>
